@@ -91,15 +91,18 @@ void AfterThisTest(void (^block)());
 #define AssertNull(VAL)         AssertEq((VAL),NULL)
 
 #else // MY_BLOCK_ASSERTS
-#define Assert(COND,MSG...)         do{ }while(0)
-#define AssertEqual(VAL,EXPECTED)   do{ }while(0)
-#define AssertEq(VAL,EXPECTED)      do{ }while(0)
-#define AssertAlmostEq(N1,N2, TOL)  do{ }while(0)
-#define AssertNil(VAL)              do{ }while(0)
+#define Assert(COND,MSG...)         _Pragma("clang diagnostic push")\
+                                    _Pragma("clang diagnostic ignored \"-Wformat-zero-length\"")\
+                                    do{ NSLog(@"", COND, ##MSG); }while(0)\
+                                    _Pragma("clang diagnostic pop")
+#define AssertEqual(VAL,EXPECTED)   do{ NSLog(@"%@", @([VAL isEqual:EXPECTED])); }while(0)
+#define AssertEq(VAL,EXPECTED)      do{ NSLog(@"%@", @([@(VAL) isEqual:@(EXPECTED)])); }while(0)
+#define AssertAlmostEq(N1,N2,TOL)   do{ }while(0)
+#define AssertNil(VAL)              do{ NSLog(@"%@", VAL); }while(0)
 #define AssertNull(VAL)             do{ }while(0)
 #endif
 
-#define AssertAbstractMethod()  _AssertAbstractMethodFailed(self,_cmd);
+#define AssertAbstractMethod()  NSLog(@"func:%s file:%s ln:%d", __func__, __FILE__, __LINE__);//_AssertAbstractMethodFailed(self,_cmd);
 
 // These were for use in functions; not necessary anymore
 #define CAssert Assert
